@@ -43,11 +43,17 @@ public class MainController {
         if (uScripts.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(uScripts, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(uScripts, HttpStatus.OK);
     }
 
-
-
+    @RequestMapping(value = "/scripts/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<UserScript> deleteScript(@PathVariable("id") long id) {
+        if (scriptExecutor.deleteById(id)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
 
 }
