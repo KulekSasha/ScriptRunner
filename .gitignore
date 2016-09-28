@@ -1,6 +1,8 @@
 #My
 .idea/
 ScriptRunner.iml
+/src/main/java/com/sk/_toIgnore/*
+/src/main/java/com/sk/_toIgnore
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Java template
@@ -59,3 +61,4 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+

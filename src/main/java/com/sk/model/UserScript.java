@@ -1,17 +1,16 @@
 package com.sk.model;
 
+import java.time.LocalDateTime;
+
 public class UserScript {
 
     private long id;
     private String script;
-    private String result;
+    private volatile String result;
+    private volatile ScriptStatus status;
+    private volatile LocalDateTime lastStatusChange;
 
     public UserScript() {
-    }
-
-    public UserScript(long id, String script) {
-        this.id = id;
-        this.script = script;
     }
 
     public long getId() {
@@ -36,5 +35,51 @@ public class UserScript {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public ScriptStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ScriptStatus status) {
+        this.status = status;
+    }
+
+    public synchronized LocalDateTime getLastStatusChange() {
+        return lastStatusChange;
+    }
+
+    public void setLastStatusChange(LocalDateTime lastStatusChange) {
+        this.lastStatusChange = lastStatusChange;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserScript)) return false;
+
+        UserScript that = (UserScript) o;
+
+        if (id != that.id) return false;
+        return script != null ? script.equals(that.script) : that.script == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (id ^ (id >>> 32));
+        result = 31 * result + (script != null ? script.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "UserScript{" +
+                "id=" + id +
+                ", script='" + script + '\'' +
+                ", result='" + result + '\'' +
+                ", status=" + status +
+                ", lastStatusChange=" + lastStatusChange +
+                '}';
     }
 }

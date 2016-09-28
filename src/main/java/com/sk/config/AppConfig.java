@@ -1,5 +1,7 @@
 package com.sk.config;
 
+import com.sk.executor.UserScriptExecutor;
+import com.sk.executor.UserScriptExecutorImpl;
 import com.sk.service.ScriptService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -9,9 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan({"com.sk",})
 public class AppConfig {
 
-    @Bean(name = "scriptService")
-    public ScriptService scriptService(){
-        return new ScriptService();
+    @Bean(name = "scriptExecutor", destroyMethod = "shutdown")
+    public UserScriptExecutor scriptExecutor(){
+        return new UserScriptExecutorImpl(5);
     }
 
 }
