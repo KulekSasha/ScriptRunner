@@ -20,7 +20,6 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
 
     private AtomicLong counter = new AtomicLong(1);
     private ConcurrentMap<Long, Holder> scriptStorage = new ConcurrentHashMap<>();
-    //    private ConcurrentMap<Long, UserScript> scriptStorage = new ConcurrentHashMap<>();
     private ExecutorService executor;
     private ScriptEngineManager manager = new ScriptEngineManager();
 
@@ -49,7 +48,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             try {
                 engine.eval(script.getScript());
             } catch (final ScriptException se) {
-                System.out.println(se);
+                System.out.println(se.toString());
                 script.setResult(se.toString());
                 script.setStatus(ScriptStatus.COMPLETE_WITH_ERROR);
                 script.setLastStatusChange(LocalDateTime.now());
@@ -100,7 +99,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         private PrintWriter consoleWriter = new PrintWriter(System.out, true);
 
 
-        public StringWriter getStringWriter() {
+        StringWriter getStringWriter() {
             return strWriter;
         }
 
@@ -173,12 +172,12 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         private UserScript userScript;
         private Future future;
 
-        public Holder(UserScript userScript, Future future) {
+        Holder(UserScript userScript, Future future) {
             this.userScript = userScript;
             this.future = future;
         }
 
-        public UserScript getUserScript() {
+        UserScript getUserScript() {
             return userScript;
         }
 
@@ -186,7 +185,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             this.userScript = userScript;
         }
 
-        public Future getFuture() {
+        Future getFuture() {
             return future;
         }
 
