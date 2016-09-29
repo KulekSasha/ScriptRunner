@@ -1,20 +1,24 @@
 package com.sk.executor;
 
-import com.sk.model.ScriptStatus;
-import com.sk.model.UserScript;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
+import com.sk.model.ScriptStatus;
+import com.sk.model.UserScript;
 
 public class UserScriptExecutorImpl implements UserScriptExecutor {
 
@@ -32,10 +36,9 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
     public synchronized long add(UserScript script) {
         script.setId(counter.getAndIncrement());
         script.setStatus(ScriptStatus.WAITING);
-        script.setLastStatusChange(LocalDateTime.now());
 
 
-        Future task = executor.submit(() -> {
+        Future<?> task = executor.submit(() -> {
             ScriptEngine engine = manager.getEngineByName("nashorn");
 
             ScriptResultWriter writer = new ScriptResultWriter();
@@ -43,21 +46,21 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             engine.getContext().setErrorWriter(writer);
 
             script.setStatus(ScriptStatus.IN_PROGRESS);
-            script.setLastStatusChange(LocalDateTime.now());
 
             try {
                 engine.eval(script.getScript());
+                // TODO result should be updated during script execution, or on every request, not only at the end of execution,
+                // otherwise it will be hard to understand what happens with buggy scripts. 
+                script.setResult(writer.getStringWriter().getBuffer().toString());
+                script.setStatus(ScriptStatus.COMPLETE);
             } catch (final ScriptException se) {
+            	// TODO use logging instead
                 System.out.println(se.toString());
                 script.setResult(se.toString());
                 script.setStatus(ScriptStatus.COMPLETE_WITH_ERROR);
-                script.setLastStatusChange(LocalDateTime.now());
-                return;
             }
+            // TODO what about handling other exceptions? Runtime exceptions ? Thread interruption? Errors?
 
-            script.setResult(writer.getStringWriter().getBuffer().toString());
-            script.setStatus(ScriptStatus.COMPLETE);
-            script.setLastStatusChange(LocalDateTime.now());
         });
 
         scriptStorage.put(script.getId(), new Holder(script, task));
@@ -67,8 +70,8 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
 
     @Override
     public List<UserScript> getAll() {
-        return scriptStorage.entrySet().stream()
-                .map(e -> e.getValue().getUserScript())
+        return scriptStorage.values().stream()
+                .map(e -> e.getUserScript())
                 .collect(Collectors.toList());
     }
 
@@ -168,11 +171,11 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         }
     }
 
-    private class Holder {
-        private UserScript userScript;
-        private Future future;
+    private static class Holder {
+        private final UserScript userScript;
+        private final Future<?> future;
 
-        Holder(UserScript userScript, Future future) {
+        Holder(UserScript userScript, Future<?> future) {
             this.userScript = userScript;
             this.future = future;
         }
@@ -181,17 +184,10 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             return userScript;
         }
 
-        public void setUserScript(UserScript userScript) {
-            this.userScript = userScript;
-        }
-
-        Future getFuture() {
+        Future<?> getFuture() {
             return future;
         }
 
-        public void setFuture(Future future) {
-            this.future = future;
-        }
     }
 }
 

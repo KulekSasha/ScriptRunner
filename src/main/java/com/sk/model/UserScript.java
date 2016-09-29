@@ -37,19 +37,24 @@ public class UserScript {
         this.result = result;
     }
 
-    public ScriptStatus getStatus() {
+    public synchronized ScriptStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ScriptStatus status) {
+    public synchronized void setStatus(ScriptStatus status) {
         this.status = status;
+        changeTimestamp();
     }
 
-    public synchronized LocalDateTime getLastStatusChange() {
+    void changeTimestamp() {
+    	this.setLastStatusChange(LocalDateTime.now());
+	}
+
+	public synchronized LocalDateTime getLastStatusChange() {
         return lastStatusChange;
     }
 
-    public void setLastStatusChange(LocalDateTime lastStatusChange) {
+    void setLastStatusChange(LocalDateTime lastStatusChange) {
         this.lastStatusChange = lastStatusChange;
     }
 
