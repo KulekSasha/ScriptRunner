@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan({"com.sk",})
+@ComponentScan("com.sk")
 public class AppConfig {
 
     @Bean(name = "scriptExecutor", destroyMethod = "shutdown")
