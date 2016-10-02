@@ -117,7 +117,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         if (holder.getThread() != null) {
             try {
                 holder.getThread().stop();
-            } catch (IllegalMonitorStateException e) {
+            } catch (SecurityException | IllegalMonitorStateException e) {
                 LOG.debug("Error during thread stopping. Thread: {}. Error: {}", holder.getThread().getName(), e);
             }
         } else {

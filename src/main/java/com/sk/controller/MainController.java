@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 public class MainController {
@@ -59,7 +60,7 @@ public class MainController {
         if (uScript == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(uScript.getScript());
+        return ok(uScript.getScript());
     }
 
     @RequestMapping(value = "/scripts/{id}/result", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
@@ -68,14 +69,14 @@ public class MainController {
         if (uScript == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(uScript.getResult());
+        return ok(uScript.getResult());
     }
 
     @RequestMapping(value = "/scripts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserScript>> getAllScripts() {
         List<UserScript> uScripts = scriptExecutor.getAll();
         // TODO DONE use builder pattern, see above
-        return ResponseEntity.ok(uScripts);
+        return ok(uScripts);
     }
 
     @RequestMapping(value = "/scripts/{id}", method = RequestMethod.DELETE)
@@ -87,6 +88,5 @@ public class MainController {
             return notFound().build();
         }
     }
-
 
 }
