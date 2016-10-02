@@ -12,7 +12,7 @@ public class AppConfig {
 
     @Bean(name = "scriptExecutor", destroyMethod = "shutdown")
     public UserScriptExecutor scriptExecutor() {
-        return new UserScriptExecutorImpl(5);
+        return new UserScriptExecutorImpl(3);
     }
 
 }

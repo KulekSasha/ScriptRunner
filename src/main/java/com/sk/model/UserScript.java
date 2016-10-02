@@ -9,6 +9,7 @@ public class UserScript {
     private volatile String result;
     private volatile ScriptStatus status;
     private volatile LocalDateTime lastStatusChange;
+    private volatile LocalDateTime startDateTime;
 
     public UserScript() {
     }
@@ -50,12 +51,20 @@ public class UserScript {
         this.setLastStatusChange(LocalDateTime.now());
     }
 
-    public synchronized LocalDateTime getLastStatusChange() {
+    public LocalDateTime getLastStatusChange() {
         return lastStatusChange;
     }
 
     void setLastStatusChange(LocalDateTime lastStatusChange) {
         this.lastStatusChange = lastStatusChange;
+    }
+
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
     }
 
     @Override

@@ -12,5 +12,9 @@ public interface UserScriptExecutor {
 
     UserScript getById(long id);
 
+    UserScript getByIdWoDetails(long id);
+
     boolean deleteById(long id);
+
+    String validate(String input);
 }
