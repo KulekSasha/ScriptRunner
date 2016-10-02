@@ -44,7 +44,6 @@ public class MainController {
         return ResponseEntity.created(ucBuilder.path("/scripts/{id}").buildAndExpand(newId).toUri()).build();
     }
 
-
     @RequestMapping(value = "/scripts/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getScriptById(@PathVariable("id") long id) {
         UserScript uScript = scriptExecutor.getByIdWoDetails(id);
@@ -56,7 +55,7 @@ public class MainController {
 
     @RequestMapping(value = "/scripts/{id}/request", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> getScriptStringById(@PathVariable("id") long id) {
-        UserScript uScript = scriptExecutor.getById(id);
+        UserScript uScript = scriptExecutor.getByIdWoDetails(id);
         if (uScript == null) {
             return ResponseEntity.notFound().build();
         }
