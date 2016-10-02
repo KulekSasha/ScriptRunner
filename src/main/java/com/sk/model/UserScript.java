@@ -47,10 +47,10 @@ public class UserScript {
     }
 
     void changeTimestamp() {
-    	this.setLastStatusChange(LocalDateTime.now());
-	}
+        this.setLastStatusChange(LocalDateTime.now());
+    }
 
-	public synchronized LocalDateTime getLastStatusChange() {
+    public synchronized LocalDateTime getLastStatusChange() {
         return lastStatusChange;
     }
 
