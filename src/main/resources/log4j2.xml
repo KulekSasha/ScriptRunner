@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" strict="true" name="AppLogConfig"
+               monitorInterval="60">
+
+    <Properties>
+        <Property name="logPath">logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Appender type="Console" name="SimpleSTDOUT">
+            <Layout type="PatternLayout"
+                    pattern="%-5level [%t] %c{1}::%M - %msg%n"/>
+        </Appender>
+    </Appenders>
+
+
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="SimpleSTDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
