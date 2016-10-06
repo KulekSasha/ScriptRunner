@@ -45,6 +45,8 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
 
         Future<?> task = executor.submit(() -> {
             holder.setThread(Thread.currentThread());
+            
+            // TODO can we reuse engine? it is costly to create 
             ScriptEngine engine = manager.getEngineByName("nashorn");
 
             ScriptResultWriter writer = new ScriptResultWriter();
@@ -57,17 +59,16 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             script.setStartDateTime(LocalDateTime.now());
             try {
                 engine.eval(script.getScript());
-                // TODO DONE result should be updated during script execution, or on every request, not only at the end of execution,
-                // otherwise it will be hard to understand what happens with buggy scripts.
+                // TODO why to update result twice ?
                 script.setResult(writer.getStringWriter().getBuffer().toString());
                 script.setStatus(ScriptStatus.COMPLETE);
             } catch (final ScriptException se) {
-                // TODO DONE use logging instead
                 LOG.debug("Error during script eval.: ", se.toString());
                 script.setResult(se.toString());
                 script.setStatus(ScriptStatus.COMPLETE_WITH_ERROR);
             } catch (final Throwable e) {
-                // TODO DONE what about handling other exceptions? Runtime exceptions ? Thread interruption? Errors?
+                // TODO is there a better way to handle exception than logging it? It's not possible for api client to look at logs
+            	// TODO is a logging level really debug in this case ?
                 LOG.debug("Unexpected error/exception: {}", e.toString());
             }
 
@@ -83,6 +84,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
     public List<UserScript> getAll() {
         return scriptStorage.values().stream()
                 .map(h -> {
+                	// TODO we unlikely need script output here
                     h.getUserScript().setResult(h.getWriter().getStringWriter().toString());
                     return h.getUserScript();
                 })
@@ -114,6 +116,8 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             return false;
         }
 
+        // TODO first try to cancel, wait for some time, and only then stop thread as a last resort
+        
         if (holder.getThread() != null) {
             try {
                 holder.getThread().stop();
@@ -126,6 +130,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         return true;
     }
 
+    // TODO consider removing this method at all
     @Override
     public String validate(String input) {
         try {
@@ -142,6 +147,8 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         executor.shutdownNow();
     }
 
+    
+    // TODO is there a better way to implement this ? What about FilterWriter? 
     private class ScriptResultWriter extends Writer {
 
         private StringWriter strWriter = new StringWriter();
@@ -218,6 +225,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
         }
     }
 
+    //TODO can't we merge UserScript and Holder into same class?
     private static class Holder {
         private final UserScript userScript;
         private volatile Future<?> task;
@@ -245,6 +253,7 @@ public class UserScriptExecutorImpl implements UserScriptExecutor {
             return userScript;
         }
 
+        // TODO is there any reason to bother with getters/setters? BTW, this method is not used
         Future<?> getTask() {
             return task;
         }

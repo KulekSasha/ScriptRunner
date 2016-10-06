@@ -19,6 +19,8 @@ import static org.springframework.http.ResponseEntity.ok;
 public class MainController {
 
     private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+    
+    //TODO duplication of same constant in scriptexecutor 
     private static final String VALIDATION_OK = "valid";
 
     @Resource
@@ -29,8 +31,7 @@ public class MainController {
         LOG.debug("Input: {{}}", input);
         String validationResult = scriptExecutor.validate(input);
 
-        // TODO DONE Error handling
-        // What if script has syntax errors? I'd recommend to check for errors synchronously and return error immediately. Consider compiling script before scheduling
+        // TODO consider a combination of throwing validation exception from business layer, and exception mapper to map it to response.
         if (!validationResult.equals(VALIDATION_OK)) {
             return ResponseEntity.badRequest()
                     .contentType(MediaType.TEXT_PLAIN)
@@ -39,6 +40,8 @@ public class MainController {
         }
 
         UserScript userScript = new UserScript();
+        
+        // TODO compiled scripts execute much faster than text scripts, because text scripts have to be compiled again 
         userScript.setScript(input);
         long newId = scriptExecutor.add(userScript);
 
@@ -48,9 +51,12 @@ public class MainController {
     @RequestMapping(value = "/scripts/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getScriptById(@PathVariable("id") long id) {
         UserScript uScript = scriptExecutor.getByIdWoDetails(id);
+        
+        // TODO this check is a code duplication, consider using exception and exception mapper instead
         if (uScript == null) {
             return notFound().build();
         }
+        
         return ResponseEntity.ok(uScript);
     }
 
@@ -60,6 +66,8 @@ public class MainController {
         if (uScript == null) {
             return ResponseEntity.notFound().build();
         }
+        
+        // TODO try learning cache control header, because text does not change since script is sent to api
         return ok(uScript.getScript());
     }
 
@@ -75,16 +83,15 @@ public class MainController {
     @RequestMapping(value = "/scripts", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserScript>> getAllScripts() {
         List<UserScript> uScripts = scriptExecutor.getAll();
-        // TODO DONE use builder pattern, see above
         return ok(uScripts);
     }
 
     @RequestMapping(value = "/scripts/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteScript(@PathVariable("id") long id) {
         if (scriptExecutor.deleteById(id)) {
-            // TODO DONE - OK response code should return valid body. Without body code should be NO_CONTENT
             return ResponseEntity.noContent().build();
         } else {
+        	// TODO also a case for a combination of not found exception plus exception mapper 
             return notFound().build();
         }
     }
